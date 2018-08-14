@@ -1,5 +1,6 @@
 package models.character.meta;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import models.character.enums.Attribute;
 import models.character.enums.Size;
 import models.character.enums.Skill;
@@ -10,19 +11,24 @@ public class StatBlock {
     // Attributes
     private EnumMap<Attribute, Integer> attributes;
     private EnumMap<Skill, SkillMeta> skills;
+    private EnumMap<Attribute, Boolean> savingThrows;
 
     private int passivePerception;
 
     private int proficiency;
     private int armorClass;
     private int maxHitPoints;
+    private int currentHitPoints;
+    private int temporaryHitPoints;
     private int speed;
     private Size size;
 
     public StatBlock() {
         attributes = new EnumMap<>(Attribute.class);
+        savingThrows = new EnumMap<>(Attribute.class);
         for (Attribute attribute : Attribute.values()) {
             attributes.put(attribute, 10);
+            savingThrows.put(attribute, false);
         }
 
         skills = new EnumMap<>(Skill.class);
@@ -36,6 +42,26 @@ public class StatBlock {
         this.maxHitPoints = 0;
         this.speed = 30;
         this.size = Size.MEDIUM;
+    }
+
+    public void setPassivePerception(int passivePerception) {
+        this.passivePerception = passivePerception;
+    }
+
+    public int getCurrentHitPoints() {
+        return currentHitPoints;
+    }
+
+    public void setCurrentHitPoints(int currentHitPoints) {
+        this.currentHitPoints = currentHitPoints;
+    }
+
+    public int getTemporaryHitPoints() {
+        return temporaryHitPoints;
+    }
+
+    public void setTemporaryHitPoints(int temporaryHitPoints) {
+        this.temporaryHitPoints = temporaryHitPoints;
     }
 
     private int getModifier(int value) {
@@ -63,10 +89,36 @@ public class StatBlock {
         return totalModifier;
     }
 
+    public int getSavingThrowModifier(Attribute type) {
+        int totalModifier = 0;
+        if (!savingThrows.containsKey(type)) {
+            return -1;
+        }
+
+        totalModifier += getModifier(type);
+        if (savingThrows.get(type)) {
+            totalModifier += proficiency;
+        }
+        return totalModifier;
+    }
+
+    public boolean getSavingThrowProficiency(Attribute type) {
+        return savingThrows.get(type);
+    }
+
     public void setSkillProficiency(Skill type, boolean value) {
         SkillMeta skillMeta = skills.get(type);
         skillMeta.setProficient(value);
         skills.replace(type, skillMeta);
+    }
+
+    public void setSavingThrowProficiency(Attribute type, boolean value) {
+        savingThrows.put(type, value);
+    }
+
+    public boolean getSkillProficiency(Skill type) {
+        SkillMeta skillMeta = skills.get(type);
+        return skillMeta.isProficient();
     }
 
     public void setSkillDoubleProficiency(Skill type, boolean value) {
@@ -79,16 +131,14 @@ public class StatBlock {
         skills.replace(type, skillMeta);
     }
 
+    public int getInitiative() { return getModifier(Attribute.DEXTERITY); }
+
     public int getAttributeValue(Attribute attribute) {
         return attributes.get(attribute);
     }
 
     public void setAttributeValue(Attribute attribute, int value) {
         attributes.replace(attribute, value);
-    }
-
-    public int getInitiativeBonus() {
-        return getModifier(Attribute.DEXTERITY);
     }
 
     public int getPassivePerception() {
@@ -142,4 +192,6 @@ public class StatBlock {
     public EnumMap<Skill, SkillMeta> getSkills() {
         return skills;
     }
+
+    public EnumMap<Attribute, Boolean> getSavingThrows() { return savingThrows; }
 }

@@ -2,7 +2,7 @@ package exceptions;
 
 import java.io.IOException;
 
-public class FormFieldDoesNotExistException extends IOException {
+public class FormFieldDoesNotExistException extends Exception {
     public FormFieldDoesNotExistException() {
         super();
     }

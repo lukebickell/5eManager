@@ -68,11 +68,34 @@ public class PdfForm {
     public void setFieldValue(String name, String value) throws FormFieldDoesNotExistException {
         PDField field = getField(name);
         try {
+            field.setValue(value);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setFieldValue(String name, boolean value) throws FormFieldDoesNotExistException {
+        PDField field = getField(name);
+        try {
             if (field instanceof PDCheckBox) {
-                field.setValue("Yes");
+                if (value) {
+                    field.setValue("Yes");
+                } else {
+                    field.setValue("Off");
+                }
             } else {
-                field.setValue(value);
+                //TODO log this
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setFieldValue(String name, int value) throws FormFieldDoesNotExistException {
+        PDField field = getField(name);
+        String stringValue = String.valueOf(value);
+        try {
+            field.setValue(stringValue);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,10 +113,11 @@ public class PdfForm {
         }
     }
 
-    private void saveReadOnly(String fileName) {
+    private void saveReadOnly(String fileName) throws IOException {
         List<PDField> fields = acroForm.getFields();
         for (PDField field : fields) {
             setFieldReadOnly(field, true);
         }
+        pdfDocument.save(fileName);
     }
 }

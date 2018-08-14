@@ -11,4 +11,12 @@ public abstract class StatEntity extends Entity {
         super(name);
         this.statBlock = statBlock;
     }
+
+    public StatBlock getStatBlock() {
+        return statBlock;
+    }
+
+    public void setStatBlock(StatBlock statBlock) {
+        this.statBlock = statBlock;
+    }
 }
